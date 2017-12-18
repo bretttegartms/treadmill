@@ -12,6 +12,7 @@ WHEELS_DIR=$(realpath "${BASE_DIR}/wheels/")
 CAN_BUILD_WHEELS="
     aniso8601
     backports.ssl_match_hostname
+    blinker
     dateutils
     flask
     flask-restfull
