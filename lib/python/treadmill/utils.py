@@ -16,6 +16,7 @@ import json
 import locale
 import logging
 import os
+import resource
 import signal
 import stat
 import sys
@@ -711,6 +712,19 @@ else:
                 {signal.SIGKILL, signal.SIGSTOP, 32, 33})
 
 
+def closefrom(firstfd=3):
+    """Close all file descriptors from `firstfd` on.
+    """
+    try:
+        # Look in proc for all open filedescriptors
+        maxfd = int(os.listdir('/proc/self/fd')[-1])
+    except (OSError, IndexError):
+        # fallback to the hardlimit to max filedescriptors.
+        maxfd = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+
+    os.closerange(firstfd, maxfd)
+
+
 def sane_execvp(filename, args, close_fds=True, restore_signals=True):
     """Execute a new program with sanitized environment.
     """
@@ -720,13 +734,8 @@ def sane_execvp(filename, args, close_fds=True, restore_signals=True):
         for i in _SIGNALS:
             signal.signal(i, signal.SIG_DFL)
 
-    def _close_fds():
-        """Close all file descriptors except 0, 1, 2.
-        """
-        os.closerange(3, subprocess.MAXFD)
-
     if close_fds:
-        _close_fds()
+        closefrom(3)
     if restore_signals:
         _restore_signals()
     os.execvp(filename, args)
