@@ -16,6 +16,7 @@ import json
 import locale
 import logging
 import os
+import resource
 import signal
 import stat
 import sys
