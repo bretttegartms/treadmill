@@ -6,6 +6,12 @@ yum -y install conntrack-tools iproute libcgroup libcgroup-tools bridge-utils op
 
 source /etc/profile.d/treadmill_profile.sh
 
+# force default back to FILE: from KEYRING:
+cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name'
+[libdefaults]
+  default_ccache_name = FILE:/tmp/krb5cc_%{uid}
+%E%O%T
+
 kinit -k
 
 (
