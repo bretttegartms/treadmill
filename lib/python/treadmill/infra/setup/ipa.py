@@ -102,6 +102,8 @@ class IPA(base_provision.BaseProvision):
             step=10,
             timeout=600
         )
+        # This needs to fire _after_ the domain is stood up
+        '''
         self.vpc.associate_dhcp_options(default=True)
 
         try:
@@ -118,6 +120,7 @@ class IPA(base_provision.BaseProvision):
                 ]
             }
         ])
+        '''
 
     def destroy(self, subnet_name):
         super().destroy(
