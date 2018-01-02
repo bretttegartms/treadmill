@@ -11,6 +11,13 @@ ipa-getkeytab -s "{{ IPA_SERVER_HOSTNAME }}" -p "ldap/$HOST_FQDN@{{ DOMAIN|upper
 ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /etc/"${PROID}".keytab
 chown "${PROID}":"${PROID}" /etc/ldap.keytab /etc/"${PROID}".keytab
 
+
+# force default back to FILE: from KEYRING:
+cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name'
+[libdefaults]
+  default_ccache_name = FILE:/tmp/krb5cc_%{uid}
+%E%O%T
+
 # Enable 22389 port for LDAP (requires policycoreutils-python)
 /sbin/semanage  port -a -t ldap_port_t -p tcp 22389
 /sbin/semanage  port -a -t ldap_port_t -p udp 22389
