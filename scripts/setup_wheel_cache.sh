@@ -5,7 +5,6 @@ set -x
 
 SCRIPT_NAME=${0##*/}
 SCRIPT_DIR=${0%/${SCRIPT_NAME}}
-
 BASE_DIR=$(realpath "${SCRIPT_DIR}/../")
 WHEELS_DIR=$(realpath "${BASE_DIR}/wheels/")
 
@@ -28,6 +27,7 @@ CAN_BUILD_WHEELS="
     psutil
     pure-sasl
     pykerberos
+    pycparser
     pyyaml
     requests-unixsocket
     simplejson
