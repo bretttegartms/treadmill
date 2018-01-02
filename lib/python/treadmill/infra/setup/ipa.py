@@ -45,12 +45,24 @@ class IPA(base_provision.BaseProvision):
         secgroup_id = self.vpc.create_security_group(
             constants.IPA_SEC_GRP, 'IPA Security Group'
         )
+        '''
         ip_permissions = [{
             'IpProtocol': 'tcp',
             'FromPort': constants.IPA_API_PORT,
             'ToPort': constants.IPA_API_PORT,
             'IpRanges': [{'CidrIp': '0.0.0.0/0'}]
         }]
+        '''
+        ip_permissions = [{
+	    'IpProtocol': '-1',
+            'IpRanges': [{'CidrIp': '192.168.240.0/24'}]
+        }, {
+	    'IpProtocol': '-1',
+            'IpRanges': [{'CidrIp': '192.168.241.0/24'}]
+        }, {
+	    'IpProtocol': '-1',
+            'IpRanges': [{'CidrIp': '192.168.242.0/24'}]
+	}]
         self.vpc.add_secgrp_rules(ip_permissions, secgroup_id)
 
         _ipa_hostnames = self._hostname_cluster(count=count)
