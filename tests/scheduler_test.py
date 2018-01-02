@@ -255,15 +255,12 @@ class AllocationTest(unittest.TestCase):
         # Check that utilization of prio 0 apps is always max float.
         self.assertEqual(
             [float('inf')] * 3,
-            [
-                util_b
-                for (_rank,
-                     util_b,
-                     _util_a,
-                     _pending,
-                     _order,
-                     _app) in queue[-3:]
-            ]
+            [util_b for (_rank,
+                         util_b,
+                         _util_a,
+                         _pending,
+                         _order,
+                         _app) in queue[-3:]]
         )
 
     def test_sub_alloc_reservation(self):
