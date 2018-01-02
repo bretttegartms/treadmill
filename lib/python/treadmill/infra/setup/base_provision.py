@@ -111,7 +111,7 @@ class BaseProvision:
             _idx_s = str(_idx + 1)
             _hostnames[_idx_s] = self.name + _idx_s + '-' + str(
                 time.time()
-            ) + '.' + connection.Connection.context.domain
+            ).replace('.','') + '.' + connection.Connection.context.domain
 
         return _hostnames
 
