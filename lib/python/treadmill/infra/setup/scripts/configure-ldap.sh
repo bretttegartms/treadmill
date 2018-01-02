@@ -52,7 +52,8 @@ s6-setuidgid "${PROID}" \
         --owner "${PROID}" \
         --uri ldap://0.0.0.0:22389 \
         --suffix "${LDAP_DC}" \
-        --gssapi
+        --gssapi \
+        --env linux
 
 # TODO: Create global utility function for adding service
 systemctl daemon-reload
