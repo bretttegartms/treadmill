@@ -25,11 +25,6 @@ import ipaddress
 import mock
 import six
 
-if six.PY2 and os.name == 'posix':
-    import subprocess32 as subprocess  # pylint: disable=import-error
-else:
-    import subprocess  # pylint: disable=wrong-import-order
-
 from treadmill import exc
 from treadmill import utils
 from treadmill import yamlwrapper as yaml
