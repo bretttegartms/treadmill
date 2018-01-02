@@ -22,7 +22,6 @@ _LINUX_ALIASES = {
     'conntrack': '/usr/sbin/conntrack',
     'cp': '/bin/cp',
     'date': '/bin/date',
-    'dir': '/var/tmp/treadmill-openldap',
     'dirname': '/usr/bin/dirname',
     'dmesg': '/bin/dmesg',
     'dnscache': None,
@@ -31,15 +30,19 @@ _LINUX_ALIASES = {
     'elglob': '/opt/s6/bin/elglob',
     'emptyenv': '/opt/s6/bin/emptyenv',
     'execlineb': '/opt/s6/bin/execlineb',
+    'exit': None,
+    'expr': '/usr/bin/expr',
     'fdmove': '/opt/s6/bin/fdmove',
     'find': '/usr/bin/find',
     'fio': None,
+    'foreground': None,  
     'grep': '/bin/grep',
     'gzip': '/usr/bin/gzip',
     'hostname': '/bin/hostname',
     'haproxy': None,
     'if': '/opt/s6/bin/if',
     'ifconfig': '/sbin/ifconfig',
+    'ifelse': None,
     'import': '/opt/s6/bin/import',
     'importas': '/opt/s6/bin/importas',
     'ionice': '/usr/bin/ionice',
@@ -60,6 +63,7 @@ _LINUX_ALIASES = {
     'logrotate': '/usr/sbin/logrotate',
     'logstash-forwarder': None,
     'losetup': '/sbin/losetup',
+    'loopwhilex': None,
     'ls': '/bin/ls',
     'lssubsys': '/bin/lssubsys',
     'lvm': '/sbin/lvm',
@@ -73,6 +77,7 @@ _LINUX_ALIASES = {
     'named': '/usr/sbin/named',
     'openldap': None,
     'pid1': '/opt/treadmill-pid1/bin/pid1', 
+    'pipeline': None,
     'printf': '/usr/bin/printf',
     'pvremove': '/sbin/pvremove',
     'pwd': '/bin/pwd',
@@ -113,7 +118,8 @@ _LINUX_ALIASES = {
     'unshare': '/usr/bin/unshare',
     'vgchange': '/sbin/vgchange',
     'vgremove': '/sbin/vgremove',
-    'ipa': '/bin/ipa'
+    'ipa': '/bin/ipa',
+    'wc': '/usr/bin/wc'
 }
 
 _WINDOWS_ALIASES = {
