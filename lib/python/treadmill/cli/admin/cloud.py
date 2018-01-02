@@ -171,7 +171,7 @@ def init():
                   show_default=True,
                   help='Treadmill master name')
     @click.option('--instance-type',
-                  default=constants.INSTANCE_TYPES['EC2']['micro'],
+                  default=constants.INSTANCE_TYPES['EC2']['large'],
                   show_default=True,
                   help='AWS ec2 instance type')
     @click.option('--tm-release',
