@@ -1,6 +1,7 @@
 # install
 yum clean all
-rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm yum -y install python34 python-kerberos git python34-devel
+rpm -ivh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
+yum -y install python34 python-kerberos git python34-devel
 
 # Configure
 hostnamectl set-hostname "{{ HOSTNAME }}"
