@@ -42,9 +42,13 @@ class IPA(base_provision.BaseProvision):
             create=True
         )
 
+        # Disabling due to conflict with Bracket secgrp assignment
+        '''
         secgroup_id = self.vpc.create_security_group(
             constants.IPA_SEC_GRP, 'IPA Security Group'
         )
+        '''
+
         '''
         ip_permissions = [{
             'IpProtocol': 'tcp',
@@ -63,7 +67,7 @@ class IPA(base_provision.BaseProvision):
 	    'IpProtocol': '-1',
             'IpRanges': [{'CidrIp': '192.168.242.0/24'}]
 	}]
-        self.vpc.add_secgrp_rules(ip_permissions, secgroup_id)
+        #self.vpc.add_secgrp_rules(ip_permissions, secgroup_id)
 
         _ipa_hostnames = self._hostname_cluster(count=count)
 
@@ -85,7 +89,7 @@ class IPA(base_provision.BaseProvision):
                 key=key,
                 instance_type=instance_type,
                 subnet_name=subnet_name,
-                sg_names=[constants.COMMON_SEC_GRP, constants.IPA_SEC_GRP],
+                sg_names=[constants.COMMON_SEC_GRP],
             )
 
         def check_passed_status():
@@ -126,4 +130,4 @@ class IPA(base_provision.BaseProvision):
         super().destroy(
             subnet_name=subnet_name
         )
-        self.vpc.delete_security_groups(sg_names=[constants.IPA_SEC_GRP])
+        #self.vpc.delete_security_groups(sg_names=[constants.IPA_SEC_GRP])
