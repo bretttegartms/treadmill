@@ -22,7 +22,7 @@ else
 
     pushd "${BASE_DIR}"
 
-    echo $2 > /treadmill/VERSION.txt
+    echo $2 > lib/python/treadmill/VERSION.txt
 
     cp -v dist/treadmill "${BASE_DIR}/rpmbuild/SOURCES/treadmill-0.1/treadmill"
     cp -v etc/treadmill.spec "${BASE_DIR}/rpmbuild/SPECS/"
@@ -33,7 +33,7 @@ else
     )
 
     rpmbuild -ba "${BASE_DIR}/rpmbuild/SPECS/treadmill.spec"
-    cp -v "${BASE_DIR}/rpmbuild/RPMS/noarch/treadmill*rpm" ${BASE_DIR}/dist/
+    cp -v ${BASE_DIR}/rpmbuild/RPMS/noarch/treadmill*rpm ${BASE_DIR}/dist/
 
     rm -rf "${BASE_DIR}/rpmbuild"
 
