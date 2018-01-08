@@ -5,6 +5,7 @@ from treadmill.api import ipa
 
 from datetime import datetime
 from functools import reduce
+from time import sleep
 import logging
 
 import polling
@@ -183,6 +184,9 @@ class Instances:
                 'Name': constants.IPA_EC2_IAM_ROLE
             } if role == 'IPA' else {}
         )
+
+        # Sometimes AWS takes longer than 1 sec to return the new instance. 
+        sleep(2)
 
         _ids = [i['InstanceId'] for i in _instances['Instances']]
         _instances_json = Instances.load_json(ids=_ids)
