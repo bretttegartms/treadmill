@@ -61,6 +61,7 @@ dns = treadmill.api.dns
 endpoint = treadmill.api.endpoint
 identity-group = treadmill.api.identity_group
 instance = treadmill.api.instance
+ipa = treadmill.api.ipa
 local = treadmill.api.local
 nodeinfo = treadmill.api.nodeinfo
 scheduler = treadmill.api.scheduler
