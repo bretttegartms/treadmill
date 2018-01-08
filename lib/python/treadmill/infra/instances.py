@@ -282,7 +282,7 @@ class Instances:
         conn = connection.Connection()
         images = conn.describe_images(
             Filters=[
-                {'Name': 'tag:name', 'Values': [image + '*']},
+                {'Name': 'tag:Name', 'Values': [image + '*']},
                 {'Name': 'owner-id', 'Values': ['012749808589']},
                 {'Name': 'image-type', 'Values': ['machine']}
             ],
