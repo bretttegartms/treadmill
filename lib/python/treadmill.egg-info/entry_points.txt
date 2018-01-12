@@ -49,6 +49,9 @@ server = treadmill.rest.api.server
 state = treadmill.rest.api.state
 tenant = treadmill.rest.api.tenant
 
+[treadmill.rest.auth]
+trusted = treadmill.rest.auth.trusted
+
 [treadmill.api]
 allocation = treadmill.api.allocation
 api-lookup = treadmill.api.api_lookup
@@ -74,8 +77,6 @@ tenant = treadmill.api.tenant
 
 [treadmill.api.allocation.plugins]
 
-[treadmill.rest.authentication]
-trusted = treadmill.rest.auth.trusted
 
 [treadmill.rest.error_handlers]
 
