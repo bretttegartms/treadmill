@@ -67,10 +67,11 @@ $RM -vf {{ dir }}/cleaning/*
 
 # Create cgroup layout.
 # TODO: cginit missing --cpu-cores argument.
-{{ treadmill_bin }} sproc --cell $TREADMILL_CELL cginit                    \
+{{ treadmill_bin }} sproc --cell $TREADMILL_CELL cgroup init               \
     --cpu {{ treadmill_cpu }}                                              \
     --mem {{ treadmill_mem }}                                              \
-    --mem-core {{ treadmill_core_mem }}
+    --mem-core {{ treadmill_core_mem }}                                    \
+    --cpu-cores {{ treadmill_cpu_cores }}
 
 
 # Starting svscan
