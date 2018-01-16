@@ -24,6 +24,7 @@ if [ -f {{ dir }}/bin/host_tickets.sh ]; then
 fi
 
 export PATH={{ _alias.s6 }}/bin:${PATH}
+source /etc/profile.d/treadmill_profile.sh
 
 $RM -f {{ dir }}/init/server_init/zkid.pickle
 
@@ -66,7 +67,7 @@ $RM -vf {{ dir }}/cleaning/*
 
 # Create cgroup layout.
 # TODO: cginit missing --cpu-cores argument.
-{{ treadmill_bin }} sproc cginit                               \
+{{ treadmill_bin }} sproc --cell $TREADMILL_CELL cginit                    \
     --cpu {{ treadmill_cpu }}                                              \
     --mem {{ treadmill_mem }}                                              \
     --mem-core {{ treadmill_core_mem }}
@@ -74,7 +75,7 @@ $RM -vf {{ dir }}/cleaning/*
 
 # Starting svscan
 exec $IONICE -c2 -n0 {{ _alias.s6_envdir }} {{ dir }}/env                  \
-    {{ treadmill_bin }} sproc --cell - cgroup                    \
+    {{ treadmill_bin }} sproc --cell $TREADMILL_CELL cgroup                \
         cleanup --delete --apps --core                                     \
         mount                                                              \
         init --cpu {{ treadmill_cpu }}                                     \
