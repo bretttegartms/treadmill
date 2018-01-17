@@ -224,6 +224,7 @@ def make_fsroot(root_dir):
         '/lib64',
         '/sbin',
         '/usr',
+        '/var/lib/sss',
         # TODO: Remove below once PAM UDS is implemented
         '/var/tmp/treadmill/env',
         '/var/tmp/treadmill/spool',
