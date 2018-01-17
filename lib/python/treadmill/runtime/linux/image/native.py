@@ -290,7 +290,7 @@ def _prepare_krb(tm_env, container_dir):
     kt_dest = os.path.join(etc_dir, 'krb5.keytab')
     kt_source = os.path.join(tm_env.spool_dir, 'krb5.keytab')
     kt_host_source = os.path.join('/', 'etc', 'krb5.keytab')
-    _LOGGER.info('Copying keytab: to %r', kt_dest)
+    _LOGGER.info('Copying keytab: {} to {}'.format(kt_source, kt_dest))
 
     try:
         shutil.copyfile(kt_source, kt_dest)
