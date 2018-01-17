@@ -247,7 +247,12 @@ def invoke(cmd, cmd_input=None, use_except=False, **environ):
                                 stderr=subprocess.STDOUT,
                                 env=cmd_environ)
         if cmd_input:
-            (out, _err) = proc.communicate(cmd_input.encode())
+            try:
+                (out, _err) = proc.communicate(cmd_input.encode())
+            except:
+                # Adding workaround for when cmd_input is bytes
+                # and cannot be encoded. py3 issue?
+                (out, _err) = proc.communicate(cmd_input)
         else:
             (out, _err) = proc.communicate()
         retcode = proc.returncode
