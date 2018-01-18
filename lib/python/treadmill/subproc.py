@@ -281,9 +281,6 @@ def exec_pid1(cmd, ipc=True, mount=True, proc=True,
         args.append('-m')
     if proc:
         args.append('-p')
-    if propagation is not None:
-        args.append('--propagation')
-        args.append(propagation)
 
     args.extend(safe_cmd)
     _LOGGER.debug('exec_pid1: %r', args)
