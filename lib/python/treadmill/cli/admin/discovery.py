@@ -45,7 +45,6 @@ def _iterate(discovery_iter, check_state, sep):
 
             if state:
                 record.append(state)
-
             output = sep.join(record)
         else:
             output = app
