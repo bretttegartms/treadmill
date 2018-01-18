@@ -4,7 +4,7 @@ disk: 1G
 services:
 - command: |
     exec treadmill sproc restapi -p 5108 --title 'Treadmill_Query_API' \
-      -m trace,state,endpoint --cors-origin='.*'
+      -m state,endpoint --cors-origin='.*'
   name: state-api
   restart:
     limit: 5
