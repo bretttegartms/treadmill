@@ -202,6 +202,7 @@ def make_fsroot(root_dir):
         '/var/lib/sss',
         # for sshd
         '/var/empty',
+        '/var/empty/sshd',
     ]
 
     stickydirs = [
