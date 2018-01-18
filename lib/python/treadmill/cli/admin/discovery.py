@@ -38,7 +38,11 @@ def _iterate(discovery_iter, check_state, sep):
                 except socket.error:
                     state = 'down'
 
-            record = [app, hostport.decode()]
+            try:
+                record = [app, hostport.decode()]
+            except AttributeError:
+                record = [app, hostport]
+
             if state:
                 record.append(state)
 
