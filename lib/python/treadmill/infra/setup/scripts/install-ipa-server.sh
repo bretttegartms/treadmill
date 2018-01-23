@@ -81,6 +81,7 @@ sudo ipa-server-install --verbose --unattended \
     --setup-dns \
     --mkhomedir \
     --ssh-trust-dns \
+    --allow-zone-overlap \
     $dns_args
 
 
