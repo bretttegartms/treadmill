@@ -32,7 +32,7 @@ s6-setuidgid "${PROID}" \
 
 s6-setuidgid "${PROID}" \
     {{ TREADMILL }} admin ldap cell insert "{{ SUBNET_ID }}" --idx "${MASTER_ID}" \
-        --hostname "$(hostname -f)" --client-port 2181
+        --hostname "$(hostname -f)" --client-port 2181 --jmx-port 8989 --followers-port 2888 --election-port 3888
 
 {{ TREADMILL }} --outfmt yaml admin ldap cell configure "{{ SUBNET_ID }}" > /var/tmp/cell_conf.yml
 
