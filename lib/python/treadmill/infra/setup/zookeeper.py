@@ -10,8 +10,8 @@ class Zookeeper(base_provision.BaseProvision):
               ipa_admin_password, proid, subnet_name, count=3):
         ldap_hostname, ipa_server_hostname = self.hostnames_for(
             roles=[
-                constants.ROLES['IPA'],
                 constants.ROLES['LDAP'],
+                constants.ROLES['IPA'],
             ]
         )
 
