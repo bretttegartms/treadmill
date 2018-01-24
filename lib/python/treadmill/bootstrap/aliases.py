@@ -82,6 +82,7 @@ _LINUX_ALIASES = {
     'pvremove': '/sbin/pvremove',
     'pwd': '/bin/pwd',
     'readlink': '/bin/readlink',
+    'reboot': '/sbin/reboot',
     'redirfd': '/opt/s6/bin/redirfd',
     'rm': '/bin/rm',
     'route': '/sbin/route',
