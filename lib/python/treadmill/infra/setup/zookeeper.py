@@ -33,9 +33,9 @@ class Zookeeper(base_provision.BaseProvision):
             })
             self.name = _zk_h
             self.configuration = configuration.Zookeeper(
+                hostname=_zk_h,
                 ldap_hostname=ldap_hostname,
                 ipa_server_hostname=ipa_server_hostname,
-                hostname=_zk_h,
                 otp=_otp,
                 idx=_idx,
                 proid=proid,
