@@ -17,14 +17,13 @@ HOST_FQDN=$(hostname -f)
 
 export TREADMILL_CELL=$subnet_id
 
-kinit -kt /etc/krb5.keytab
-
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name'
 [libdefaults]
   default_ccache_name = FILE:/tmp/krb5cc_%{uid}
 %E%O%T
 
+kinit -kt /etc/krb5.keytab
 
 echo Retrieving zookeeper service keytab
 ipa-getkeytab -s "{{ IPA_SERVER_HOSTNAME }}" -p "zookeeper/$HOST_FQDN@{{ DOMAIN|upper }}" -k /etc/zk.keytab
