@@ -12,7 +12,7 @@ ZK_URL={{ ZK_URL }}
 
 grep -q -F 'preserve_hostname: true' /etc/cloud/cloud.cfg || echo 'preserve_hostname: true' >> /etc/cloud/cloud.cfg
 
-# Setup environment vars
+# Setup environment vars for shell
 (
 cat <<EOF
 export TREADMILL_ZOOKEEPER=$ZK_URL
@@ -29,5 +29,23 @@ export AWS_DEFAULT_REGION={{ REGION }}
 export PROID={{ PROID }}
 EOF
 ) >> /etc/profile.d/treadmill_profile.sh
+
+# Setup environment vars for import
+(
+cat <<EOF
+TREADMILL_ZOOKEEPER=$ZK_URL
+TREADMILL_LDAP=$LDAP_URL
+TREADMILL_LDAP_SUFFIX=${LDAP_DC}
+TREADMILL_CELL={{ SUBNET_ID }}
+TREADMILL_APPROOT={{ APP_ROOT }}
+TREADMILL_DNS_DOMAIN={{ DOMAIN }}
+TREADMILL=/opt/treadmill
+TREADMILL_ALIASES_PATH=node
+PEX_ROOT=/tmp/pex
+PATH=$PATH:/opt/s6/bin:/opt/treadmill/bin
+AWS_DEFAULT_REGION={{ REGION }}
+PROID={{ PROID }}
+EOF
+) >> /etc/profile.d/treadmill_profile
 
 source /etc/profile.d/treadmill_profile.sh >> ~/.bashrc

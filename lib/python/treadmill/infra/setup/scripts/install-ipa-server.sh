@@ -18,7 +18,6 @@ sudo systemctl start ntpd
 sleep 3
 peers=`sudo ntpq -c peers | tail -n +3 | wc -l`
 
-touch /tmp/ipa-ready-for-install
 PRIVATE_IP=`curl --silent http://169.254.169.254/latest/meta-data/local-ipv4`
 
 mac=`curl --silent http://169.254.169.254/latest/meta-data/mac`
@@ -53,7 +52,6 @@ BEGIN {
 
     exit(0)
 }'`
-echo $dns_args>/tmp/dnsargs
 
 if [ $peers -eq 0 -o -z "$IPA_DS_PASSWORD" -o -z "$IPA_ADMIN_PASSWORD" -o -z "$PRIVATE_IP" -o -z "$DOMAIN" -o -z "$REALM" -o -z "$HOSTNAME" -o -z "$dns_args" ]; then
 
@@ -61,14 +59,15 @@ if [ $peers -eq 0 -o -z "$IPA_DS_PASSWORD" -o -z "$IPA_ADMIN_PASSWORD" -o -z "$P
     exit
 fi
 
+sudo mkdir -p /var/spool/tickets
+sudo mkdir -p /var/spool/keytabs-proids
+sudo chmod 777 /var/spool/tickets /var/spool/keytabs-proids
+
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
 [libdefaults]
-  default_ccache_name = FILE:/tmp/krb5cc_%{uid}
+  default_ccache_name = FILE:/var/spool/tickets/%{username}
 %E%O%T
-
-touch /tmp/keyfile-setup
-
 
 sudo ipa-server-install --verbose --unattended \
     --ds-password="$IPA_DS_PASSWORD" \
@@ -85,13 +84,10 @@ sudo ipa-server-install --verbose --unattended \
     $dns_args
 
 
-touch /tmp/ipa-installed
 
 echo "$IPA_ADMIN_PASSWORD" | kinit admin
 
 ipa dnszone-mod "$DOMAIN" --allow-sync-ptr=TRUE
-
-#ipa dnsrecord-add "$DOMAIN" ipa-ca --a-rec $PRIVATE_IP
 
 TMHOSTADM_OUTPUT=`ipa -n user-add tmhostadm --first tmhostadm --last proid --shell /bin/bash --class proid --random`
 
@@ -114,20 +110,37 @@ ipa role-add "Service Admin" --desc "Service Admin"
 ipa role-add-privilege "Service Admin" --privileges "Service Administrators"
 ipa role-add-member "Service Admin" --users tmhostadm
 
-sudo kadmin.local -q "xst -norandkey -k /tmp/tmhostadm.keytab tmhostadm"
-sudo chown tmhostadm:tmhostadm /tmp/tmhostadm.keytab
+sudo kadmin.local -q "xst -norandkey -k /var/spool/keytabs-proids/tmhostadm.keytab tmhostadm"
+sudo chown tmhostadm:tmhostadm /var/spool/keytabs-proids/tmhostadm.keytab
 
-sudo su - root -c 'echo "su - tmhostadm -c \"kinit -k -t /tmp/tmhostadm.keytab tmhostadm\"" >/etc/cron.hourly/tmhostadm-kinit'
+sudo su - root -c 'echo "su - tmhostadm -c \"kinit -k -t /var/spool/keytabs-proids/tmhostadm.keytab tmhostadm\"" >/etc/cron.hourly/tmhostadm-kinit'
 
 sudo chmod 755 /etc/cron.hourly/tmhostadm-kinit
 sudo /etc/cron.hourly/tmhostadm-kinit
 
-TREADMILL=/opt/treadmill/bin/treadmill
+(
+cat <<EOF
+[Unit]
+Description=Treadmill IPA services
+After=network.target
 
-nohup sudo su - root -c "$TREADMILL sproc restapi -p 5108 --title 'Treadmill_API' -m ipa,cloud --cors-origin='.*' >/var/log/ipa_api.out 2>&1" &
+[Service]
+User=root
+Group=root
+SyslogIdentifier=treadmill
+EnvironmentFile=/etc/profile.d/treadmill_profile
+ExecStartPre=/bin/mount --make-rprivate /
+ExecStart=/opt/treadmill/bin/treadmill sproc restapi -p 5108 --title 'Treadmill_API' -m ipa,cloud --cors-origin='.*'
+Restart=always
+RestartSec=5
 
-# Outdated command? sproc restapi doesn't know what to do with the "tmhostadm" part
-#nohup sudo su - root -c "$TREADMILL sproc restapi -p 5108 --title 'Treadmill_API' -m ipa,cloud --cors-origin='.*' tmhostadm >/var/log/ipa_api.out 2>&1" &
+[Install]
+WantedBy=multi-user.target
+EOF
+) > /etc/systemd/system/treadmill-ipa.service
+
+sudo systemctl daemon-reload
+sudo systemctl enable treadmill-ipa.service --now
 
 TREADMLD_OUTPUT=`ipa -n user-add --first=treadmld --last=proid --shell /bin/bash --class proid --random treadmld`
 

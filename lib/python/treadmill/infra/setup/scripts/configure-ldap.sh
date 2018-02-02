@@ -4,19 +4,27 @@ yum -y install openldap openldap-clients openldap-servers ipa-admintools
 
 HOST_FQDN=$(hostname -f)
 
+
+
+sudo mkdir -p /var/spool/tickets
+sudo mkdir -p /var/spool/keytabs-proids
+sudo mkdir -p /var/spool/keytabs-services
+sudo chmod 777 /var/spool/tickets /var/spool/keytabs-proids /var/spool/keytabs-services
+
+# force default back to FILE: from KEYRING:
+cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
+[libdefaults]
+  default_ccache_name = FILE:/var/spool/tickets/%{username}
+%E%O%T
+
 kinit -kt /etc/krb5.keytab
 
 echo Retrieving LDAP service keytab
-ipa-getkeytab -s "{{ IPA_SERVER_HOSTNAME }}" -p "ldap/$HOST_FQDN@{{ DOMAIN|upper }}" -k /etc/ldap.keytab
-ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /etc/"${PROID}".keytab
-chown "${PROID}":"${PROID}" /etc/ldap.keytab /etc/"${PROID}".keytab
+ipa-getkeytab -s "{{ IPA_SERVER_HOSTNAME }}" -p "ldap/$HOST_FQDN@{{ DOMAIN|upper }}" -k /var/spool/keytabs-services/ldap.keytab
+ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /var/spool/keytabs-proids/"${PROID}".keytab
+chown "${PROID}":"${PROID}" /var/spool/keytabs-services/ldap.keytab /var/spool/keytabs-proids/${PROID}.keytab
 
 
-# force default back to FILE: from KEYRING:
-cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name'
-[libdefaults]
-  default_ccache_name = FILE:/tmp/krb5cc_%{uid}
-%E%O%T
 
 # Enable 22389 port for LDAP (requires policycoreutils-python)
 /sbin/semanage  port -a -t ldap_port_t -p tcp 22389
@@ -33,7 +41,7 @@ Description=OpenLDAP Directory Server
 After=network.target
 
 [Service]
-Environment="KRB5_KTNAME=/etc/ldap.keytab"
+Environment="KRB5_KTNAME=/var/spool/keytabs-services/ldap.keytab"
 User=${PROID}
 Group=${PROID}
 SyslogIdentifier=openldap
@@ -62,7 +70,7 @@ systemctl status openldap
 
 echo Initializing openldap
 
-su -c "kinit -k -t /etc/${PROID}.keytab ${PROID}" "${PROID}"
+su -c "kinit -k -t /var/spool/keytabs-proids/${PROID}.keytab ${PROID}" "${PROID}"
 
 s6-setuidgid "${PROID}" {{ TREADMILL }} admin ldap init
 

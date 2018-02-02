@@ -3,10 +3,14 @@ MASTER_ID="{{ IDX }}"
 yum install -y openldap-clients
 source /etc/profile.d/treadmill_profile.sh
 
+sudo mkdir -p /var/spool/tickets
+sudo mkdir -p /var/spool/keytabs-proids
+sudo chmod 777 /var/spool/tickets /var/spool/keytabs-proids
+
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
 [libdefaults]
-  default_ccache_name = FILE:/tmp/krb5cc_%{uid}
+  default_ccache_name = FILE:/var/spool/tickets/%{username}
 %E%O%T
 
 kinit -k
@@ -21,9 +25,9 @@ do
 done
 )
 
-ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /etc/"${PROID}".keytab
-chown "${PROID}":"${PROID}" /etc/"${PROID}".keytab
-su -c "kinit -k -t /etc/${PROID}.keytab ${PROID}" "${PROID}"
+ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /var/spool/keytabs-proids/"${PROID}".keytab
+chown "${PROID}":"${PROID}" /var/spool/keytabs-proids/"${PROID}".keytab
+su -c "kinit -k -t /var/spool/keytabs-proids/${PROID}.keytab ${PROID}" "${PROID}"
 
 s6-setuidgid "${PROID}" \
     {{ TREADMILL }} admin ldap cell configure "{{ SUBNET_ID }}" --version 0.1 --root "{{ APP_ROOT }}" \
@@ -38,7 +42,6 @@ s6-setuidgid "${PROID}" \
 
 (
 cat <<EOF
-mkdir -p /var/spool/tickets
 kinit -k -t /etc/krb5.keytab -c /var/spool/tickets/${PROID}
 chown ${PROID}:${PROID} /var/spool/tickets/${PROID}
 EOF
