@@ -6,10 +6,11 @@ yum -y install conntrack-tools iproute libcgroup libcgroup-tools bridge-utils op
 
 source /etc/profile.d/treadmill_profile.sh
 
+mkdir /etc/tickets && chmod 755 /etc/tickets
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name'
 [libdefaults]
-  default_ccache_name = FILE:/tmp/krb5cc_%{uid}
+  default_ccache_name = FILE:/etc/tickets/%{username}
 %E%O%T
 
 kinit -k
@@ -28,9 +29,8 @@ done
 
 (
 cat <<EOF
-mkdir -p /var/spool/tickets
-kinit -k -t /etc/krb5.keytab -c /var/spool/tickets/"${PROID}"
-chown "${PROID}":"${PROID}" /var/spool/tickets/"${PROID}"
+kinit -k -t /etc/krb5.keytab -c /etc/tickets/host
+chown "${PROID}":"${PROID}" /etc/tickets/host
 EOF
 ) > /etc/cron.hourly/hostkey-"${PROID}"-kinit
 
@@ -59,18 +59,18 @@ WantedBy=multi-user.target
 EOF
 ) > /etc/systemd/system/treadmill-node.service
 
-{{ TREADMILL }} admin install \
-    --install-dir {{ APP_ROOT }} \
-    --config /var/tmp/cell_conf.yml \
-    --override "network_device=eth0 rrdtool=/usr/bin/rrdtool rrdcached=/usr/bin/rrdcached" \
-    node
+su -c '{{ TREADMILL }} admin install \
+       --install-dir {{ APP_ROOT }} \
+       --config /var/tmp/cell_conf.yml \
+       --override "network_device=eth0 rrdtool=/usr/bin/rrdtool rrdcached=/usr/bin/rrdcached" \
+       node' treadmld
 
 ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /etc/"${PROID}".keytab
 chown "${PROID}":"${PROID}" /etc/"${PROID}".keytab
 su -c "kinit -k -t /etc/${PROID}.keytab ${PROID}" "${PROID}"
 
 su -c "mkdir -p {{ APP_ROOT }}/var/tmp {{ APP_ROOT }}/var/run" "${PROID}"
-ln -s /var/spool/tickets/"${PROID}" {{ APP_ROOT }}/spool/krb5cc_host
+ln -s /etc/tickets/host {{ APP_ROOT }}/spool/krb5cc_host
 
 s6-setuidgid "${PROID}" {{ TREADMILL }} admin ldap server configure "$(hostname -f)" --cell "{{ SUBNET_ID }}"
 

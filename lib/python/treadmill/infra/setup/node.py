@@ -7,6 +7,7 @@ class Node(base_provision.BaseProvision):
     def setup(
             self,
             image,
+            count,
             key,
             tm_release,
             instance_type,
