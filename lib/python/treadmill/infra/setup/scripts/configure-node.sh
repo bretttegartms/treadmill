@@ -37,6 +37,8 @@ EOF
 chmod 755 /etc/cron.hourly/hostkey-"${PROID}"-kinit
 /etc/cron.hourly/hostkey-"${PROID}"-kinit
 
+touch /etc/ld.so.preload
+
 (
 cat <<EOF
 [Unit]
@@ -67,9 +69,11 @@ ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWO
 chown "${PROID}":"${PROID}" /etc/"${PROID}".keytab
 su -c "kinit -k -t /etc/${PROID}.keytab ${PROID}" "${PROID}"
 
+su -c "mkdir -p {{ APP_ROOT }}/var/tmp {{ APP_ROOT }}/var/run" "${PROID}"
+ln -s /var/spool/tickets/"${PROID}" {{ APP_ROOT }}/spool/krb5cc_host
+
 s6-setuidgid "${PROID}" {{ TREADMILL }} admin ldap server configure "$(hostname -f)" --cell "{{ SUBNET_ID }}"
 
 /bin/systemctl daemon-reload
 /bin/systemctl enable treadmill-node.service --now
 
-ln -s /var/spool/tickets/"${PROID}" {{ APP_ROOT }}/spool/krb5cc_host
