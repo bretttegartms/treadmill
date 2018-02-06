@@ -87,33 +87,33 @@ echo "$IPA_ADMIN_PASSWORD" | kinit admin
 
 ipa dnszone-mod "$DOMAIN" --allow-sync-ptr=TRUE
 
-TMHOSTADM_OUTPUT=`ipa -n user-add tmhostadm --first tmhostadm --last proid --shell /bin/bash --class proid --random`
+IPA_USER_ADD_OUTPUT=`ipa -n user-add --first=${PROID} --last=proid --shell /bin/bash --class proid --random ${PROID}`
 
-TMP_TMHOSTADM_PASSWORD=`echo "$TMHOSTADM_OUTPUT" | grep 'Random password:' | awk '{print $3}'`
+ORIGINAL_PROID_PASSWORD=`echo "${IPA_USER_ADD_OUTPUT}" | grep 'Random password:' | awk '{print $3}'`
 
-NEW_TMHOSTADM_PASSWORD=`openssl rand -base64 12`
+NEW_PROID_PASSWORD=`openssl rand -base64 12`
 
-kpasswd tmhostadm <<!E!O!T
-$TMP_TMHOSTADM_PASSWORD
-$NEW_TMHOSTADM_PASSWORD
-$NEW_TMHOSTADM_PASSWORD
+kpasswd treadmld <<!E!O!T
+$ORIGINAL_PROID_PASSWORD
+$NEW_PROID_PASSWORD
+$NEW_PROID_PASSWORD
 !E!O!T
 
 ipa role-add "Host Enroller" --desc "Host Enroller"
 ipa role-add-privilege "Host Enroller" --privileges "Host Enrollment"
 ipa role-add-privilege "Host Enroller" --privileges "Host Administrators"
-ipa role-add-member "Host Enroller" --users tmhostadm
+ipa role-add-member "Host Enroller" --users ${PROID}
 
 ipa role-add "Service Admin" --desc "Service Admin"
 ipa role-add-privilege "Service Admin" --privileges "Service Administrators"
-ipa role-add-member "Service Admin" --users tmhostadm
+ipa role-add-member "Service Admin" --users ${PROID}
 
-kadmin.local -q "xst -norandkey -k /etc/tmhostadm.keytab tmhostadm"
-chown tmhostadm:tmhostadm /etc/tmhostadm.keytab
+kadmin.local -q "xst -norandkey -k /etc/${PROID}.keytab ${PROID}"
+chown "${PROID}:${PROID}" /etc/${PROID}.keytab
 
-echo 'kinit -k -t /etc/tmhostadm.keytab -c /etc/tickets/tmhostadm tmhostadm && chown tmhostadm:tmhostadm /etc/tickets/tmhostadm' > /etc/cron.hourly/tmhostadm-kinit
-chmod 755 /etc/cron.hourly/tmhostadm-kinit
-/etc/cron.hourly/tmhostadm-kinit
+echo 'kinit -k -t /etc/${PROID}.keytab -c /etc/tickets/${PROID} ${PROID} && chown ${PROID}:${PROID} /etc/tickets/${PROID}' > /etc/cron.hourly/${PROID}-kinit
+chmod 755 /etc/cron.hourly/${PROID}-kinit
+/etc/cron.hourly/${PROID}-kinit
 
 (
 cat <<EOF
@@ -122,8 +122,8 @@ Description=Treadmill IPA services
 After=network.target
 
 [Service]
-User=tmhostadm
-Group=tmhostadm
+User=${PROID}
+Group=${PROID}
 SyslogIdentifier=treadmill
 EnvironmentFile=/etc/profile.d/treadmill_profile
 ExecStartPre=/bin/mount --make-rprivate /
@@ -138,16 +138,4 @@ EOF
 
 sudo systemctl daemon-reload
 sudo systemctl enable treadmill-ipa.service --now
-
-TREADMLD_OUTPUT=`ipa -n user-add --first=treadmld --last=proid --shell /bin/bash --class proid --random treadmld`
-
-TMP_TREADMLD_PASSWORD=`echo "${TREADMLD_OUTPUT}" | grep 'Random password:' | awk '{print $3}'`
-
-NEW_TREADMLD_PASSWORD=`openssl rand -base64 12`
-
-kpasswd treadmld <<!E!O!T
-$TMP_TREADMLD_PASSWORD
-$NEW_TREADMLD_PASSWORD
-$NEW_TREADMLD_PASSWORD
-!E!O!T
 
