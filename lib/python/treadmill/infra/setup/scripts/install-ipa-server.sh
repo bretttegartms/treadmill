@@ -59,17 +59,15 @@ if [ $peers -eq 0 -o -z "$IPA_DS_PASSWORD" -o -z "$IPA_ADMIN_PASSWORD" -o -z "$P
     exit
 fi
 
-sudo mkdir -p /var/spool/tickets
-sudo mkdir -p /var/spool/keytabs-proids
-sudo chmod 777 /var/spool/tickets /var/spool/keytabs-proids
+mkdir /etc/tickets && chmod 755 /etc/tickets
 
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
 [libdefaults]
-  default_ccache_name = FILE:/var/spool/tickets/%{username}
+  default_ccache_name = FILE:/etc/tickets/%{username}
 %E%O%T
 
-sudo ipa-server-install --verbose --unattended \
+ipa-server-install --unattended \
     --ds-password="$IPA_DS_PASSWORD" \
     --admin-password="$IPA_ADMIN_PASSWORD" \
     --ip-address "$PRIVATE_IP" \
@@ -110,13 +108,12 @@ ipa role-add "Service Admin" --desc "Service Admin"
 ipa role-add-privilege "Service Admin" --privileges "Service Administrators"
 ipa role-add-member "Service Admin" --users tmhostadm
 
-sudo kadmin.local -q "xst -norandkey -k /var/spool/keytabs-proids/tmhostadm.keytab tmhostadm"
-sudo chown tmhostadm:tmhostadm /var/spool/keytabs-proids/tmhostadm.keytab
+kadmin.local -q "xst -norandkey -k /etc/tmhostadm.keytab tmhostadm"
+chown tmhostadm:tmhostadm /etc/tmhostadm.keytab
 
-sudo su - root -c 'echo "su - tmhostadm -c \"kinit -k -t /var/spool/keytabs-proids/tmhostadm.keytab tmhostadm\"" >/etc/cron.hourly/tmhostadm-kinit'
-
-sudo chmod 755 /etc/cron.hourly/tmhostadm-kinit
-sudo /etc/cron.hourly/tmhostadm-kinit
+echo 'kinit -k -t /etc/tmhostadm.keytab -c /etc/tickets/tmhostadm tmhostadm && chown tmhostadm:tmhostadm /etc/tickets/tmhostadm' > /etc/cron.hourly/tmhostadm-kinit
+chmod 755 /etc/cron.hourly/tmhostadm-kinit
+/etc/cron.hourly/tmhostadm-kinit
 
 (
 cat <<EOF
@@ -125,8 +122,8 @@ Description=Treadmill IPA services
 After=network.target
 
 [Service]
-User=root
-Group=root
+User=tmhostadm
+Group=tmhostadm
 SyslogIdentifier=treadmill
 EnvironmentFile=/etc/profile.d/treadmill_profile
 ExecStartPre=/bin/mount --make-rprivate /
