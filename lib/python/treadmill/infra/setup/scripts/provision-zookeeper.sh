@@ -1,14 +1,5 @@
-# Install
-
-if [ ! -e /etc/yum.repos.d/treadmill.repo ]; then
-    curl -L https://s3.amazonaws.com/yum_repo_dev/treadmill.repo -o /etc/yum.repos.d/treadmill.repo
-fi
-
-yum -y install java
-yum -y install zookeeper-ldap-plugin --nogpgcheck
-
-# Configure
-
+yum -y install java-1.8.0-openjdk
+yum -y install http://192.168.241.33/zookeeper-3.4.6-1.el7.centos.x86_64.rpm  http://192.168.241.33/bigtop-utils-1.2.1-1.el7.centos.noarch.rpm http://192.168.241.33/zookeeper-ldap-plugin-0.1-0.x86_64.rpm --nogpgcheck 
 echo "{{ CFG_DATA }}" >> /etc/zookeeper/conf/zoo.cfg
 
 mac_addr=`cat /sys/class/net/eth0/address`
@@ -17,22 +8,27 @@ HOST_FQDN=$(hostname -f)
 
 export TREADMILL_CELL=$subnet_id
 
+mkdir /var/spool/keytabs-proids && chmod 755 /var/spool/keytabs-proids
+mkdir /var/spool/keytabs-services && chmod 755 /var/spool/keytabs-services
+mkdir /var/spool/tickets && chmod 755 /var/spool/tickets
+
 # force default back to FILE: from KEYRING:
-cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name'
+cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
 [libdefaults]
-  default_ccache_name = FILE:/tmp/krb5cc_%{uid}
+  default_ccache_name = FILE:/var/spool/tickets/%{username}
 %E%O%T
 
 kinit -kt /etc/krb5.keytab
 
-echo Retrieving zookeeper service keytab
-ipa-getkeytab -s "{{ IPA_SERVER_HOSTNAME }}" -p "zookeeper/$HOST_FQDN@{{ DOMAIN|upper }}" -k /etc/zk.keytab
+echo Retrieving Zookeeper service keytab
+ipa-getkeytab -s "{{ IPA_SERVER_HOSTNAME }}" -p "zookeeper/$HOST_FQDN@{{ DOMAIN|upper }}" -k /var/spool/keytabs-services/zookeeper.keytab
+chown "${PROID}":"${PROID}" /var/spool/keytabs-services/zookeeper.keytab
 
 envsubst < /etc/zookeeper/conf/treadmill.conf > /etc/zookeeper/conf/temp.conf
 mv /etc/zookeeper/conf/temp.conf /etc/zookeeper/conf/treadmill.conf -f
 sed -i s/REALM/{{ DOMAIN|upper }}/g /etc/zookeeper/conf/treadmill.conf
 sed -i s/PRINCIPAL/'"'zookeeper\\/$HOST_FQDN'"'/g /etc/zookeeper/conf/jaas.conf
-sed -i s/KEYTAB/'"'\\/etc\\/zk.keytab'"'/g /etc/zookeeper/conf/jaas.conf
+sed -i s/KEYTAB/'"'\\/var\\/spool\\/keytabs-services\\/zookeeper.keytab'"'/g /etc/zookeeper/conf/jaas.conf
 
 (
 cat <<EOF
@@ -60,8 +56,7 @@ su -c "zookeeper-server-initialize" "${PROID}"
 
 su -c "echo {{ IDX }} > /var/lib/zookeeper/myid" "${PROID}"
 
-chown "${PROID}":"${PROID}" /etc/zk.keytab
-kinit -k
+kinit -k 
 
 /bin/systemctl enable zookeeper.service
 /bin/systemctl start zookeeper.service

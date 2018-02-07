@@ -6,14 +6,32 @@ yum -y install conntrack-tools iproute libcgroup libcgroup-tools bridge-utils op
 
 source /etc/profile.d/treadmill_profile.sh
 
-mkdir /etc/tickets && chmod 755 /etc/tickets
+mkdir /var/spool/keytabs-proids && chmod 755 /var/spool/keytabs-proids
+mkdir /var/spool/keytabs-services && chmod 755 /var/spool/keytabs-services
+mkdir /var/spool/tickets && chmod 755 /var/spool/tickets
+
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name'
 [libdefaults]
-  default_ccache_name = FILE:/etc/tickets/%{username}
+  default_ccache_name = FILE:/var/spool/tickets/%{username}
 %E%O%T
 
-kinit -k
+kinit -kt /etc/krb5.keytab
+
+# Retrieving ${PROID} keytab
+ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /var/spool/keytabs-proids/"${PROID}".keytab
+chown "${PROID}":"${PROID}" /var/spool/keytabs-proids/"${PROID}".keytab
+
+(
+cat <<EOF
+kinit -k -t /var/spool/keytabs-proids/"${PROID}".keytab -c /var/spool/tickets/"${PROID}".tmp "${PROID}"
+chown ${PROID}:${PROID} /var/spool/tickets/"${PROID}".tmp
+mv /var/spool/tickets/"${PROID}".tmp /var/spool/tickets/"${PROID}"
+EOF
+) > /etc/cron.hourly/"${PROID}"-kinit
+
+chmod 755 /etc/cron.hourly/"${PROID}"-kinit
+/etc/cron.hourly/"${PROID}"-kinit
 
 (
 TIMEOUT=30
@@ -27,15 +45,6 @@ done
 
 {{ TREADMILL }} --outfmt yaml admin ldap cell configure "{{ SUBNET_ID }}" > /var/tmp/cell_conf.yml
 
-(
-cat <<EOF
-kinit -k -t /etc/krb5.keytab -c /etc/tickets/host
-chown "${PROID}":"${PROID}" /etc/tickets/host
-EOF
-) > /etc/cron.hourly/hostkey-"${PROID}"-kinit
-
-chmod 755 /etc/cron.hourly/hostkey-"${PROID}"-kinit
-/etc/cron.hourly/hostkey-"${PROID}"-kinit
 
 touch /etc/ld.so.preload
 
@@ -49,7 +58,6 @@ After=network.target
 User=root
 Group=root
 SyslogIdentifier=treadmill
-ExecStartPre=/bin/mount --make-rprivate /
 ExecStart={{ APP_ROOT }}/bin/run.sh
 Restart=always
 RestartSec=5
@@ -65,12 +73,8 @@ su -c '{{ TREADMILL }} admin install \
        --override "network_device=eth0 rrdtool=/usr/bin/rrdtool rrdcached=/usr/bin/rrdcached" \
        node' treadmld
 
-ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /etc/"${PROID}".keytab
-chown "${PROID}":"${PROID}" /etc/"${PROID}".keytab
-su -c "kinit -k -t /etc/${PROID}.keytab ${PROID}" "${PROID}"
-
 su -c "mkdir -p {{ APP_ROOT }}/var/tmp {{ APP_ROOT }}/var/run" "${PROID}"
-ln -s /etc/tickets/host {{ APP_ROOT }}/spool/krb5cc_host
+ln -s /var/spool/tickets/"${PROID}" {{ APP_ROOT }}/spool/krb5cc_host
 
 s6-setuidgid "${PROID}" {{ TREADMILL }} admin ldap server configure "$(hostname -f)" --cell "{{ SUBNET_ID }}"
 

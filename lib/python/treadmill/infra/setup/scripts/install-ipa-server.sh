@@ -59,12 +59,13 @@ if [ $peers -eq 0 -o -z "$IPA_DS_PASSWORD" -o -z "$IPA_ADMIN_PASSWORD" -o -z "$P
     exit
 fi
 
-mkdir /etc/tickets && chmod 755 /etc/tickets
+mkdir /var/spool/keytabs-proids && chmod 755 /var/spool/keytabs-proids
+mkdir /var/spool/tickets && chmod 755 /var/spool/tickets
 
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
 [libdefaults]
-  default_ccache_name = FILE:/etc/tickets/%{username}
+  default_ccache_name = FILE:/var/spool/tickets/%{username}
 %E%O%T
 
 ipa-server-install --unattended \
@@ -108,10 +109,17 @@ ipa role-add "Service Admin" --desc "Service Admin"
 ipa role-add-privilege "Service Admin" --privileges "Service Administrators"
 ipa role-add-member "Service Admin" --users ${PROID}
 
-kadmin.local -q "xst -norandkey -k /etc/${PROID}.keytab ${PROID}"
-chown "${PROID}:${PROID}" /etc/${PROID}.keytab
+kadmin.local -q "xst -norandkey -k /var/spool/keytabs-proids/${PROID}.keytab ${PROID}"
+chown "${PROID}:${PROID}" /var/spool/keytabs-proids/${PROID}.keytab
 
-echo 'kinit -k -t /etc/${PROID}.keytab -c /etc/tickets/${PROID} ${PROID} && chown ${PROID}:${PROID} /etc/tickets/${PROID}' > /etc/cron.hourly/${PROID}-kinit
+(
+cat <<EOF
+kinit -k -t /var/spool/keytabs-proids/${PROID}.keytab -c /var/spool/tickets/${PROID}.tmp ${PROID}
+chown ${PROID}:${PROID} /var/spool/tickets/${PROID}.tmp
+mv /var/spool/tickets/${PROID}.tmp /var/spool/tickets/${PROID}
+EOF
+) > /etc/cron.hourly/${PROID}-kinit
+
 chmod 755 /etc/cron.hourly/${PROID}-kinit
 /etc/cron.hourly/${PROID}-kinit
 
@@ -126,7 +134,6 @@ User=${PROID}
 Group=${PROID}
 SyslogIdentifier=treadmill
 EnvironmentFile=/etc/profile.d/treadmill_profile
-ExecStartPre=/bin/mount --make-rprivate /
 ExecStart=/opt/treadmill/bin/treadmill sproc restapi -p 5108 --title 'Treadmill_API' -m ipa,cloud --cors-origin='.*'
 Restart=always
 RestartSec=5
