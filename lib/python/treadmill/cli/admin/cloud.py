@@ -163,7 +163,7 @@ def init():
                   help='Image to use for new instances e.g. RHEL-7.4')
     @click.option('--subnet-name', help='Cell(Subnet) Name',
                   required=True)
-    @click.option('--count', default='1', type=int,
+    @click.option('--count', default='3', type=int,
                   show_default=True,
                   help='Number of Treadmill masters to spin up')
     @click.option('--region', help='Region for the vpc')
@@ -349,7 +349,7 @@ def init():
     @click.option('--name', default='TreadmillNode',
                   show_default=True,
                   help='Node name')
-    @click.option('--count', default='3', type=int,
+    @click.option('--count', default='1', type=int,
                   show_default=True,
                   help='Number of Treadmill nodes to spin up')
     @click.option('--instance-type',

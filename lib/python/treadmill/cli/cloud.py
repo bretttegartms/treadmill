@@ -322,7 +322,7 @@ def init():
     @cli.handle_exceptions(restclient.CLI_REST_EXCEPTIONS)
     @click.pass_context
     def configure_node(ctx, vpc_name, region, name, key, image, subnet_name,
-                       instance_type, tm_release, app_root, count
+                       instance_type, tm_release, app_root, count,
                        ipa_admin_password, with_api, manifest):
         """Configure new Node in Cell"""
 
