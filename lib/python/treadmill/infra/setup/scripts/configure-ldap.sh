@@ -1,15 +1,10 @@
-echo Installing openldap
-
 yum -y install openldap openldap-clients openldap-servers ipa-admintools
 
 HOST_FQDN=$(hostname -f)
 
-
-
-sudo mkdir -p /var/spool/tickets
-sudo mkdir -p /var/spool/keytabs-proids
-sudo mkdir -p /var/spool/keytabs-services
-sudo chmod 777 /var/spool/tickets /var/spool/keytabs-proids /var/spool/keytabs-services
+mkdir /var/spool/keytabs-proids && chmod 755 /var/spool/keytabs-proids
+mkdir /var/spool/keytabs-services && chmod 755 /var/spool/keytabs-services
+mkdir /var/spool/tickets && chmod 755 /var/spool/tickets
 
 # force default back to FILE: from KEYRING:
 cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
@@ -19,12 +14,23 @@ cat <<%E%O%T | sudo su - root -c 'cat - >/etc/krb5.conf.d/default_ccache_name '
 
 kinit -kt /etc/krb5.keytab
 
-echo Retrieving LDAP service keytab
+# Retrieving LDAP service keytab
 ipa-getkeytab -s "{{ IPA_SERVER_HOSTNAME }}" -p "ldap/$HOST_FQDN@{{ DOMAIN|upper }}" -k /var/spool/keytabs-services/ldap.keytab
+
+# Retrieving ${proid} keytab
 ipa-getkeytab -r -p "${PROID}" -D "cn=Directory Manager" -w "{{ IPA_ADMIN_PASSWORD }}" -k /var/spool/keytabs-proids/"${PROID}".keytab
 chown "${PROID}":"${PROID}" /var/spool/keytabs-services/ldap.keytab /var/spool/keytabs-proids/${PROID}.keytab
 
+(
+cat <<EOF
+kinit -k -t /var/spool/keytabs-proids/${PROID}.keytab -c /var/spool/tickets/${PROID}.tmp ${PROID}
+chown ${PROID}:${PROID} /var/spool/tickets/${PROID}.tmp
+mv /var/spool/tickets/${PROID}.tmp /var/spool/tickets/${PROID}
+EOF
+) > /etc/cron.hourly/${PROID}-kinit
 
+chmod 755 /etc/cron.hourly/${PROID}-kinit
+/etc/cron.hourly/${PROID}-kinit
 
 # Enable 22389 port for LDAP (requires policycoreutils-python)
 /sbin/semanage  port -a -t ldap_port_t -p tcp 22389
@@ -67,10 +73,6 @@ s6-setuidgid "${PROID}" \
 systemctl daemon-reload
 systemctl enable openldap.service --now
 systemctl status openldap
-
-echo Initializing openldap
-
-su -c "kinit -k -t /var/spool/keytabs-proids/${PROID}.keytab ${PROID}" "${PROID}"
 
 s6-setuidgid "${PROID}" {{ TREADMILL }} admin ldap init
 
