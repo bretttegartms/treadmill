@@ -1,5 +1,5 @@
 yum -y install java-1.8.0-openjdk
-yum -y install http://192.168.241.33/zookeeper-3.4.6-1.el7.centos.x86_64.rpm  http://192.168.241.33/bigtop-utils-1.2.1-1.el7.centos.noarch.rpm http://192.168.241.33/zookeeper-ldap-plugin-0.1-0.x86_64.rpm --nogpgcheck 
+yum -y install http://192.168.241.33/zookeeper-3.4.9-1.x86_64.rpm http://192.168.241.33/bigtop-utils-1.2.1-1.el7.centos.noarch.rpm http://192.168.241.33/zookeeper-ldap-plugin-0.1-0.x86_64.rpm --nogpgcheck 
 echo "{{ CFG_DATA }}" >> /etc/zookeeper/conf/zoo.cfg
 
 mac_addr=`cat /sys/class/net/eth0/address`
