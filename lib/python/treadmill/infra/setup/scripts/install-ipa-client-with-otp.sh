@@ -72,7 +72,7 @@ kill -HUP $(cat /var/run/sshd.pid)
 ########################################################################
 
 # passwd/shadow maps - remove ec2-user user and group
-userdel ec-2user # this removes user and group
+userdel ec2-user # this removes user and group
 
 # /etc/sudoers - remove ec2-user sudoers rule
 sed --in-place -e '/ec2-user/d' /etc/sudoers
