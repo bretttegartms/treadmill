@@ -80,7 +80,7 @@ rm -f /etc/sudoers.d/90-cloud-init-users
 
 # where: ~ec2-user/*
 # what: remove ~ec2-user home directory and .ssh /authorized_keys
-rm -f /home/ec2-user
+rm -rf /home/ec2-user
 
 ########################################################################
 # BEGIN: STUFF THAT SHOULD REMOVED BY THE AMI USED FOR TREADMILL NODES #
