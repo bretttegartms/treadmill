@@ -68,7 +68,7 @@ Group=root
 SyslogIdentifier=treadmill
 ExecStart=/var/tmp/treadmill-master/treadmill/bin/run.sh
 Restart=always
-RestartSec=5
+RestartSec=60
 
 [Install]
 WantedBy=multi-user.target
