@@ -15,6 +15,7 @@ import click
 from twisted.internet import reactor
 
 from treadmill import context
+from treadmill.infra import connection
 from treadmill import utils
 from treadmill import zknamespace as z
 from treadmill import zkutils
@@ -44,11 +45,15 @@ def init():
                   help='Run without lock.')
     @click.option('--proid', required=True,
                   help='System proid.')
-    def run(no_lock, proid):
+    @click.option('--region', help='Region for the vpc')
+    def run(no_lock, proid, region):
         """Run Treadmill DNS endpoint engine."""
         zkclient = context.GLOBAL.zk.conn
         endpointpath = z.join_zookeeper_path(z.ENDPOINTS, proid)
         zkclient.ensure_path(endpointpath)
+
+        if region:
+            connection.Connection.context.region_name = region        
 
         if no_lock:
             _do_watch(zkclient, endpointpath)
