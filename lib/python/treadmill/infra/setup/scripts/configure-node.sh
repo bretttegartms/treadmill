@@ -47,6 +47,7 @@ done
 
 
 touch /etc/ld.so.preload
+touch /etc/treadmill_bind_preload.so
 
 (
 cat <<EOF
