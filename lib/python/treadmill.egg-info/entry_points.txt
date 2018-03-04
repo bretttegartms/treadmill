@@ -57,11 +57,6 @@ server = treadmill.rest.api.server
 state = treadmill.rest.api.state
 tenant = treadmill.rest.api.tenant
 
-[treadmill.rest.authentication]
-trusted = treadmill.rest.auth.trusted
-
-[treadmill.rest.error_handlers]
-
 [treadmill.api]
 allocation = treadmill.api.allocation
 api-lookup = treadmill.api.api_lookup
@@ -307,7 +302,7 @@ hosted_zones = treadmill.infra.utils.hosted_zones
 mutually_exclusive_option = treadmill.infra.utils.mutually_exclusive_option
 security_group = treadmill.infra.utils.security_group
 
-treadmill.cellsync]
+[treadmill.cellsync]
 appgroups = treadmill.cellsync:sync_appgroups
 allocations = treadmill.cellsync:sync_allocations
 partitions = treadmill.cellsync:sync_partitions
