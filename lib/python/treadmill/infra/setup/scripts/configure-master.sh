@@ -21,9 +21,17 @@ chown "${PROID}":"${PROID}" /var/spool/keytabs-proids/"${PROID}".keytab
 
 (
 cat <<EOF
+kinit -kt /etc/krb5.keytab  -c /var/tmp/treadmill-master/treadmill/spool/krb5cc_host
+EOF
+) > /etc/cron.hourly/host-kinit
+
+
+(
+cat <<EOF
 su -c 'kinit -k -t /var/spool/keytabs-proids/"${PROID}".keytab "${PROID}"' ${PROID}
 EOF
 ) > /etc/cron.hourly/"${PROID}"-kinit
+
 
 chmod 755 /etc/cron.hourly/"${PROID}"-kinit
 /etc/cron.hourly/"${PROID}"-kinit
