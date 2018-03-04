@@ -92,7 +92,7 @@ run_parts "{{ dir }}/bin/parts"
 # Execute into Treadmill boot.
 exec \
     ${IONICE} -c2 -n0 \
-    ${PID1} -m -p --propagation slave \
+    ${PID1} -m -p  \
     ${ENVDIR} "{{ dir }}/env" \
     ${TMBIN} \
         sproc boot
