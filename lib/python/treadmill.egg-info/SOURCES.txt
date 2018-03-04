@@ -70,8 +70,8 @@ lib/python/treadmill.egg-info/PKG-INFO
 lib/python/treadmill.egg-info/SOURCES.txt
 lib/python/treadmill.egg-info/dependency_links.txt
 lib/python/treadmill.egg-info/entry_points.txt
+lib/python/treadmill.egg-info/not-zip-safe
 lib/python/treadmill.egg-info/top_level.txt
-lib/python/treadmill.egg-info/zip-safe
 lib/python/treadmill/ad/__init__.py
 lib/python/treadmill/ad/_servers.py
 lib/python/treadmill/ad/credential_spec.py

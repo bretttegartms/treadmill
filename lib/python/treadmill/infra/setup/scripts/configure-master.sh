@@ -25,6 +25,7 @@ kinit -kt /etc/krb5.keytab  -c /var/tmp/treadmill-master/treadmill/spool/krb5cc_
 EOF
 ) > /etc/cron.hourly/host-kinit
 
+chmod 755 /etc/cron.hourly/host-kinit
 
 (
 cat <<EOF
@@ -61,6 +62,9 @@ s6-setuidgid "${PROID}" \
 {{ TREADMILL }} admin install --install-dir /var/tmp/treadmill-master \
     --override "profile=cloud" \
     --config /var/tmp/cell_conf.yml master --master-id "${MASTER_ID}"
+
+
+/etc/cron.hourly/host-kinit
 
 (
 cat <<EOF
