@@ -18,8 +18,14 @@ __pycache__
 # Preserve tmpwatch files
 !.tmpwatch.exclude
 
-# Ignore generated files/dir
-lib/python/treadmill.egg-info/*
+# Keep s6 files from templaces
+!.s6-svscan
+!.winss-svscan
+
+# Ignore generated files
+lint.log
+pep8.log
+plcritic.log
 doc/build
 wheels/
 build/

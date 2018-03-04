@@ -13,6 +13,7 @@ import unittest
 
 # Disable W0611: Unused import
 import tests.treadmill_test_skip_windows  # pylint: disable=W0611
+import tests.treadmill_test_deps  # pylint: disable=W0611
 
 import mock
 
@@ -34,7 +35,7 @@ class CgroupReaderTest(unittest.TestCase):
             shutil.rmtree(self.root)
 
     @mock.patch(
-        'treadmill.cgroups.get_mountpoint',
+        'treadmill.cgroups._get_mountpoint',
         mock.Mock(return_value='/cgroups'))
     @mock.patch(
         'treadmill.fs.linux.maj_min_to_blk',

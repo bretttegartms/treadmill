@@ -13,6 +13,7 @@ import unittest
 
 # Disable W0611: Unused import
 import tests.treadmill_test_skip_windows  # pylint: disable=W0611
+import tests.treadmill_test_deps  # pylint: disable=W0611
 
 import mock
 import numpy as np
@@ -240,7 +241,7 @@ class ReportsTest(unittest.TestCase):
         df = pd.DataFrame([
             [1, 2, 3],
             [4, 5, 6]
-        ], columns=['a', 'b', 'c']).set_index('a')
+        ], columns=['a', 'b', 'c'])
 
         result = reports.serialize_dataframe(df)
         self.assertEqual(

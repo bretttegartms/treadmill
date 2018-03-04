@@ -14,6 +14,7 @@ import socket
 
 # Disable W0611: Unused import
 import tests.treadmill_test_skip_windows  # pylint: disable=W0611
+import tests.treadmill_test_deps  # pylint: disable=W0611
 
 import mock
 
@@ -75,10 +76,10 @@ class BaseServiceTest(unittest.TestCase):
             )._load_impl
         )
         self.assertRaises(
-            AssertionError,
+            KeyError,
             _base_service.ResourceService(
                 service_dir=self.root,
-                impl='socket.socket',
+                impl='socket:socket',
             )._load_impl
         )
 

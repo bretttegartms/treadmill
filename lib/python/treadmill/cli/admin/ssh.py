@@ -69,7 +69,7 @@ def run_putty(host, port, sshcmd, command):
                                       stdout=subprocess.PIPE,
                                       stdin=subprocess.PIPE,
                                       stderr=subprocess.PIPE)
-    out, err = store_key_proc.communicate(input='y\n\n\n\n\n\n\n\n\n')
+    out, err = store_key_proc.communicate(input='y\n\n\n\n\n\n\n\n\n'.encode())
 
     _LOGGER.debug('plink STDOUT: %s', out)
     _LOGGER.debug('plink STDERR: %s', err)
@@ -119,7 +119,7 @@ def init():
         for (endpoint, hostport) in app_discovery.iteritems():
             _LOGGER.info('%s :: %s', endpoint, hostport)
             if hostport:
-                host, port = hostport.split(':')
+                host, port = hostport.split(b':')
                 run_ssh(host, port, ssh, list(command))
 
     return ssh

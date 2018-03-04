@@ -13,7 +13,6 @@ from __future__ import unicode_literals
 import codecs
 import copy
 import functools
-import importlib
 import io
 import logging
 import os
@@ -34,8 +33,11 @@ import treadmill
 from treadmill import utils
 from treadmill import context
 from treadmill import plugin_manager
+<<<<<<< HEAD
 from treadmill import restclient
 from botocore import exceptions
+=======
+>>>>>>> 2018.03.02-1
 
 EXIT_CODE_DEFAULT = 1
 
@@ -62,6 +64,7 @@ def init_logger(name):
             traceback.print_exc(file=f)
             click.echo('Error parsing log conf: {name}'.format(name=name),
                        err=True)
+<<<<<<< HEAD
 
 
 def make_multi_command(module_name, **click_args):
@@ -100,6 +103,8 @@ def make_multi_command(module_name, **click_args):
                 return
 
     return MCommand
+=======
+>>>>>>> 2018.03.02-1
 
 
 def make_commands(section, **click_args):
@@ -284,6 +289,15 @@ def validate_cpu(_ctx, _param, value):
         return
     if not re.search(r'\d+%$', value):
         raise click.BadParameter('CPU format: nnn%.')
+    return value
+
+
+def validate_cpuset_cores(_ctx, _param, value):
+    """Validate cpuset cores string."""
+    if value is None:
+        return
+    if not re.search(r'\d+\-?\d*(,\d+\-?\d*)*$', value):
+        raise click.BadParameter('CPU cores format: nnn[,nnn-[nnn]].')
     return value
 
 
