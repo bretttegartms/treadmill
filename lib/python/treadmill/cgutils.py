@@ -100,14 +100,16 @@ def create_treadmill_cgroups(treadmill_core_cpu_shares,
     cgroups.inherit_value('cpuset', 'treadmill/apps', 'cpuset.mems')
 
     # cgroup combines duplicate cores automatically
-    cgroups.set_value(
-        'cpuset', 'treadmill/core', 'cpuset.cpus',
-        treadmill_core_cpuset_cpus
-    )
-    cgroups.set_value(
-        'cpuset', 'treadmill/apps', 'cpuset.cpus',
-        treadmill_apps_cpuset_cpus
-    )
+    if treadmill_core_cpuset_cpus:
+        cgroups.set_value(
+            'cpuset', 'treadmill/core', 'cpuset.cpus',
+            treadmill_core_cpuset_cpus
+        )
+    if treadmill_apps_cpuset_cpus:
+        cgroups.set_value(
+            'cpuset', 'treadmill/apps', 'cpuset.cpus',
+            treadmill_apps_cpuset_cpus
+        )
 
     # Memory
     create('memory', 'treadmill/core')

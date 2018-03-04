@@ -31,9 +31,9 @@ def init():
     @click.option('--core-cpu-shares',
                   envvar='TREADMILL_CORE_CPU_SHARES', required=True)
     @click.option('--core-cpuset-cpus',
-                  envvar='TREADMILL_CORE_CPUSET_CPUS', required=True)
+                  envvar='TREADMILL_CORE_CPUSET_CPUS', required=False)
     @click.option('--apps-cpuset-cpus',
-                  envvar='TREADMILL_APPS_CPUSET_CPUS', required=True)
+                  envvar='TREADMILL_APPS_CPUSET_CPUS', required=False)
     @click.option('--core-memory-limit',
                   envvar='TREADMILL_CORE_MEMORY_LIMIT', required=True)
     @click.option('--preserve-mounts',
@@ -149,6 +149,9 @@ def _cgroup_init(treadmill_core_cpu_shares,
 def _parse_cpuset_cpus(cpuset_cpus):
     """Parse cpuset cores.
     """
+    if not cpuset_cpus or cpuset_cpus == '-':
+        return ''
+
     cores_max = sysinfo.cpu_count() - 1
     return ','.join(
         [
