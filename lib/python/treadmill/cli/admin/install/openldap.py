@@ -52,6 +52,7 @@ def init():
 
         ctx.obj['PARAMS']['env'] = env
         ctx.obj['PARAMS']['treadmillid'] = owner
+        ctx.obj['PARAMS']['owner'] = owner
 
         if uri:
             ctx.obj['PARAMS']['uri'] = uri
