@@ -87,12 +87,13 @@ def _admin_api(ctx, scope=None):
     """Resolve admin API SRV records."""
     # Default.
     #
-    def _lookup(ctx, scope):
+
+    def _lookup(ctx, scope=[]):
         return _api(
             ctx,
             '_http._tcp.adminapi.{scope}'.format(scope=scope),
             'http'
-        )
+            )
 
     if scope is not None:
         return _lookup(ctx, scope)
