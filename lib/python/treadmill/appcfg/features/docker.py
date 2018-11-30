@@ -9,6 +9,7 @@ import logging
 import socket
 
 from treadmill import cellconfig
+from treadmill import dockerutils
 from treadmill import subproc
 from treadmill.appcfg.features import feature_base
 
@@ -73,6 +74,10 @@ def _generate_dockerd_service(tm_env):
     """Configure docker daemon services."""
     # add dockerd service
 
+    # add host ulimits to dockerd
+    ulimits = dockerutils.init_ulimit(None)
+    default_ulimit = dockerutils.fmt_ulimit_to_flag(ulimits)
+
     # we disable advanced network features
     command = (
         'exec'
@@ -88,9 +93,11 @@ def _generate_dockerd_service(tm_env):
         ' --iptables=false'
         ' --cgroup-parent=docker'
         ' --block-registry="*"'
+        ' {default_ulimit}'
     ).format(
         dockerd=subproc.resolve('dockerd'),
         docker_runtime=subproc.resolve('docker_runtime'),
+        default_ulimit=default_ulimit,
     )
 
     # we only allow pull image from specified registry
