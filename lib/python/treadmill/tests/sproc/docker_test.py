@@ -90,7 +90,6 @@ class DockerTest(unittest.TestCase):
             ],
         )
 
-
     def test__parse_image_name(self):
         """test parse image name string
         """
