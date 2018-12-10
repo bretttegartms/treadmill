@@ -21,7 +21,7 @@ class AppCfgDockerFeatureTest(unittest.TestCase):
     """
 
     @mock.patch('treadmill.subproc.resolve', mock.Mock(return_value='tm'))
-    @mock.patch('treadmill.utils.get_ulimit', mock.Mock(return_value=(0,0)))
+    @mock.patch('treadmill.utils.get_ulimit', mock.Mock(return_value=(0, 0)))
     @mock.patch('treadmill.appcfg.features.docker._get_docker_registry',
                 mock.Mock(return_value=iter(['foo:5050', 'bar:5050'])))
     def test_docker_feature(self):

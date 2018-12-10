@@ -8,7 +8,6 @@ from __future__ import unicode_literals
 
 import unittest
 
-import docker
 import mock
 
 # Disable W0611: Unused import
