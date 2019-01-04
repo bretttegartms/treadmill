@@ -12,23 +12,24 @@ _DEFAULT_ULIMIT = ['core', 'data', 'fsize', 'nproc', 'nofile', 'rss', 'stack']
 
 
 def init_ulimit(ulimit=None):
-    """init ulimit value
+    """Initialize docker ulimits to current system defaults.
+       Accepts an optional list of overrides.
     """
     total_result = []
 
-    if not ulimit:
-        for u_type in _DEFAULT_ULIMIT:
-            (soft_limit, hard_limit) = utils.get_ulimit(u_type)
-            total_result.append(
-                {'Name': u_type, 'Soft': soft_limit, 'Hard': hard_limit}
-            )
-        return total_result
-
-    for u_string in ulimit:
-        (u_type, soft_limit, hard_limit) = u_string.split(':', 3)
+    for u_type in _DEFAULT_ULIMIT:
+        (soft_limit, hard_limit) = utils.get_ulimit(u_type)
         total_result.append(
-            {'Name': u_type, 'Soft': int(soft_limit), 'Hard': int(hard_limit)}
+            {'Name': u_type, 'Soft': soft_limit, 'Hard': hard_limit}
         )
+
+    if ulimit:
+        for u_string in ulimit:
+            (u_type, soft_limit, hard_limit) = u_string.split(':', 3)
+            for limit in total_result:
+                if limit['Name'] == u_type:
+                    limit['Soft'] = int(soft_limit)
+                    limit['Hard'] = int(hard_limit)
 
     return total_result
 

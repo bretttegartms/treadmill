@@ -11,9 +11,7 @@ import unittest
 import mock
 
 import treadmill.tests.treadmill_test_skip_windows  # pylint: disable=W0611
-
 from treadmill.appcfg import features
-
 
 class AppCfgDockerFeatureTest(unittest.TestCase):
     """Test for docker feature
@@ -22,6 +20,7 @@ class AppCfgDockerFeatureTest(unittest.TestCase):
     @mock.patch('treadmill.subproc.resolve', mock.Mock(return_value='tm'))
     @mock.patch('treadmill.appcfg.features.docker._get_docker_registry',
                 mock.Mock(return_value=iter(['foo:5050', 'bar:5050'])))
+    @mock.patch('treadmill.utils.get_ulimit', mock.Mock(return_value=(1,1)))
     def test_docker_feature(self):
         """test apply dockerd feature
         """
@@ -56,6 +55,13 @@ class AppCfgDockerFeatureTest(unittest.TestCase):
              ' --exec-opt native.cgroupdriver=cgroupfs --bridge=none'
              ' --ip-forward=false --ip-masq=false --iptables=false'
              ' --cgroup-parent=docker --block-registry="*"'
+             ' --default-ulimit core=1:1'
+             ' --default-ulimit data=1:1'
+             ' --default-ulimit fsize=1:1'
+             ' --default-ulimit nproc=1:1'
+             ' --default-ulimit nofile=1:1'
+             ' --default-ulimit rss=1:1'
+             ' --default-ulimit stack=1:1'
              ' --insecure-registry foo:5050 --add-registry foo:5050'
              ' --insecure-registry bar:5050 --add-registry bar:5050')
         )
